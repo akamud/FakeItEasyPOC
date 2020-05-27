@@ -5,17 +5,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Autofac.Core;
 
 namespace UnitTestProject1
 {
-    public static class AutoFakeExtensions
+    public static class RelaxedAutoFakeCreator
     {
-        public static Type Xablau = null;
-
-        public static T Generate<T>(this AutoFake autoFake)
+        public static AutoFake For<T>(bool strict = false, bool callsBaseMethods = false,
+            Action<object> configureFake = null, ContainerBuilder builder = null,
+            Action<ContainerBuilder> configureAction = null)
         {
-            Xablau = typeof(T);
-            return autoFake.Container.Resolve<T>();
+            if (builder == null)
+            {
+                builder = new ContainerBuilder();
+            }
+
+            builder.RegisterSource(new FakeConcreteTypeHandler(strict, callsBaseMethods, configureFake));
+            builder.RegisterType<T>();
+
+            return new AutoFake(strict, callsBaseMethods, configureFake, builder);
         }
     }
 }

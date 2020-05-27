@@ -8,7 +8,7 @@ namespace FakeItEasyConcrete
     {
         public virtual bool Teste()
         {
-            return true;
+            throw new Exception();
         }
     }
 }

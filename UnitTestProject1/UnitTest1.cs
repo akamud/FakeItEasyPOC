@@ -1,25 +1,21 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
+using Autofac.Builder;
 using Autofac.Extras.FakeItEasy;
 using FakeItEasy;
 using FakeItEasyConcrete;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace UnitTestProject1
 {
-    [TestClass]
     public class UnitTest1
     {
-        [TestMethod]
+        [Test]
         public void TestMethod1()
         {
-            var builder = new ContainerBuilder();
-            builder.RegisterSource(new FakeConcreteTypeHandler(false, false, null));
+            var autoFake = RelaxedAutoFakeCreator.For<Class1>();
+            var classe1 = autoFake.Resolve<Class1>();
 
-            var autoFake = new AutoFake(builder: builder);
-            var a = autoFake.Generate<Class1>();
-
-            a.DoSomething();
+            classe1.DoSomething();
 
             A.CallTo(() => autoFake.Resolve<FakeClass>().Teste())
                 .MustHaveHappenedOnceExactly();

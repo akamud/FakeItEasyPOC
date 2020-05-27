@@ -53,12 +53,12 @@ namespace Autofac.Extras.FakeItEasy
             {
                 throw new ArgumentNullException(nameof(service));
             }
-
+            
             var typedService = service as TypedService;
             if (typedService == null ||
-                typedService.ServiceType == AutoFakeExtensions.Xablau ||
+                // typedService.ServiceType == AutoFakeExtensions.Xablau ||
                 !(typedService.ServiceType.GetTypeInfo().DeclaredMethods.Any(x => x.IsVirtual)
-                || typedService.ServiceType.GetTypeInfo().DeclaredProperties.Any(x => x.GetMethod?.IsVirtual == true || x.SetMethod?.IsVirtual == true)))
+                || typedService.ServiceType.GetTypeInfo().DeclaredProperties.Any(x => x.GetMethod?.IsVirtual != true || x.SetMethod?.IsVirtual != true)))
             {
                 return Enumerable.Empty<IComponentRegistration>();
             }
