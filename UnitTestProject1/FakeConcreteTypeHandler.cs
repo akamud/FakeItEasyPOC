@@ -7,7 +7,6 @@ using Autofac.Core;
 using FakeItEasy;
 using FakeItEasy.Creation;
 using FakeItEasy.Sdk;
-using UnitTestProject1;
 
 namespace Autofac.Extras.FakeItEasy
 {
@@ -49,16 +48,28 @@ namespace Autofac.Extras.FakeItEasy
         public IEnumerable<IComponentRegistration> RegistrationsFor(
             Service service, Func<Service, IEnumerable<IComponentRegistration>> registrationAccessor)
         {
-            if (service == null)
+            if (registrationAccessor == null)
             {
-                throw new ArgumentNullException(nameof(service));
+                throw new ArgumentNullException(nameof(registrationAccessor));
             }
-            
+
             var typedService = service as TypedService;
-            if (typedService == null ||
-                // typedService.ServiceType == AutoFakeExtensions.Xablau ||
-                !(typedService.ServiceType.GetTypeInfo().DeclaredMethods.Any(x => x.IsVirtual)
-                || typedService.ServiceType.GetTypeInfo().DeclaredProperties.Any(x => x.GetMethod?.IsVirtual != true || x.SetMethod?.IsVirtual != true)))
+            if (typedService == null || typedService.ServiceType == typeof(string))
+            {
+                return Enumerable.Empty<IComponentRegistration>();
+            }
+
+            var typeInfo = typedService.ServiceType.GetTypeInfo();
+            if ((typeInfo.IsClass && typeInfo.IsAbstract) ||
+                typeInfo.IsInterface ||
+                (typeInfo.IsGenericType &&
+                 typedService.ServiceType.GetGenericTypeDefinition() == typeof(IEnumerable<>)) ||
+                typedService.ServiceType.IsArray ||
+                typeof(IStartable).IsAssignableFrom(typedService.ServiceType) ||
+                registrationAccessor(service).Any() ||
+                !(typeInfo.DeclaredMethods.Any(x => x.IsVirtual)
+                  || typeInfo.DeclaredProperties.Any(x =>
+                      x.GetMethod?.IsVirtual != true || x.SetMethod?.IsVirtual != true)))
             {
                 return Enumerable.Empty<IComponentRegistration>();
             }
@@ -67,7 +78,7 @@ namespace Autofac.Extras.FakeItEasy
                 .As(service)
                 .InstancePerLifetimeScope();
 
-            return new[] { rb.CreateRegistration() };
+            return new[] {rb.CreateRegistration()};
         }
 
         /// <summary>

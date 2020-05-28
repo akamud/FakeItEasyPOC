@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace FakeItEasyConcrete
+﻿namespace FakeItEasyConcrete
 {
     public class Class1
     {
