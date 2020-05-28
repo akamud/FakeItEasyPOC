@@ -1,19 +1,14 @@
-﻿using System;
-using Autofac;
-using Autofac.Extras.FakeItEasy;
+﻿using UnitTestProject1;
 
-namespace UnitTestProject1
+namespace Autofac.Extras.FakeItEasy
 {
-    public static class RelaxedAutoFakeCreator
+    public static class AutoFakeExtensions
     {
-        public static AutoFake For<T>(bool strict = false, bool callsBaseMethods = false,
-            Action<object> configureFake = null)
+        public static T Generate<T>(this AutoFake autoFake)
         {
-            var builder = new ContainerBuilder();
-            builder.RegisterSource(new FakeConcreteTypeHandler(strict, callsBaseMethods, configureFake));
-            builder.RegisterType<T>();
+            RelaxedAutoFakeCreator.SUTType = typeof(T);
 
-            return new AutoFake(strict, callsBaseMethods, configureFake, builder);
+            return autoFake.Resolve<T>();
         }
     }
 }

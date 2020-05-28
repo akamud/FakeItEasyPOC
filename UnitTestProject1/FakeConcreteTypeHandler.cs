@@ -7,6 +7,7 @@ using Autofac.Core;
 using FakeItEasy;
 using FakeItEasy.Creation;
 using FakeItEasy.Sdk;
+using UnitTestProject1;
 
 namespace Autofac.Extras.FakeItEasy
 {
@@ -60,15 +61,13 @@ namespace Autofac.Extras.FakeItEasy
             }
 
             var typeInfo = typedService.ServiceType.GetTypeInfo();
-            if ((typeInfo.IsClass && typeInfo.IsAbstract) ||
+            if (typedService.ServiceType == RelaxedAutoFakeCreator.SUTType ||
+                (typeInfo.IsClass && typeInfo.IsAbstract) || 
                 typeInfo.IsInterface ||
-                (typeInfo.IsGenericType &&
-                 typedService.ServiceType.GetGenericTypeDefinition() == typeof(IEnumerable<>)) ||
+                (typeInfo.IsGenericType && typedService.ServiceType.GetGenericTypeDefinition() == typeof(IEnumerable<>)) ||
                 typedService.ServiceType.IsArray ||
-                typeof(IStartable).IsAssignableFrom(typedService.ServiceType) ||
                 registrationAccessor(service).Any() ||
-                !(typeInfo.DeclaredMethods.Any(x => x.IsVirtual)
-                  || typeInfo.DeclaredProperties.Any(x =>
+                !(typeInfo.DeclaredMethods.Any(x => x.IsVirtual) || typeInfo.DeclaredProperties.Any(x =>
                       x.GetMethod?.IsVirtual != true || x.SetMethod?.IsVirtual != true)))
             {
                 return Enumerable.Empty<IComponentRegistration>();
@@ -78,7 +77,7 @@ namespace Autofac.Extras.FakeItEasy
                 .As(service)
                 .InstancePerLifetimeScope();
 
-            return new[] {rb.CreateRegistration()};
+            return new[] { rb.CreateRegistration() };
         }
 
         /// <summary>
